@@ -1,0 +1,38 @@
+name: Reusable CI-CD workflow
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-lates
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Buld
+        run: echo "Building the application"
+      
+  deploy-test:
+    name: Deploy to TEST
+    needs: build
+    uses: szkercza-uni/github-workflows/.github/actions/deploy-to-environment@main
+    with:
+      environment: test
+    secrets: inherit
+
+  deploy-staging:
+    name: Deploy to STAGING
+    needs: deploy-test
+    uses: szkercza-uni/github-workflows/.github/actions/deploy-to-environment@main
+    with:
+      environment: staging
+    secrets: inherit
+
+  deploy-prod:
+    name: Deploy to PROD
+    needs: deploy-staging
+    uses: szkercza-uni/github-workflows/.github/actions/deploy-to-environment@main
+    with:
+      environment: prod
+    secrets: inherit
